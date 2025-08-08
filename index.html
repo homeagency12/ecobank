@@ -233,6 +233,7 @@ async function submitForm(e) {
     const response = await Promise.race([
       fetch('https://script.google.com/macros/s/AKfycbww6K906AXnS5m974UFLWGAZpC3EnTxCfH_chG6kpcUOCFN_NsD6EOhSI3Tig8ZBDci/exec', {
         method: 'POST',
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json'
         },
